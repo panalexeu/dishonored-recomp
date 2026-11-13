@@ -1,5 +1,5 @@
 <div align=center>
-<img src="imgs/theme.jpeg" alt="singularity" width="100%">
+<img src="imgs/theme.jpg" alt="dishonored" width="100%">
 </div>
 
 ---
