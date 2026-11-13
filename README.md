@@ -10,7 +10,7 @@ The project is fully vibecoded.
 
 The end goal is to port the game to the Switch, but this repo is released as a rexglue-sdk recipe for recompiling and playing your **legally owned and purchased** Xbox 360 copy of Dishonored on PC, using emulated Xbox 360 rendering.
 
-Work in progress: the game compiles, boots and reaches the main menu. On the default (FBO) render path, objects in the menu scene are drawn dark, without their lighting; Xenia Canary draws the same scene correctly. Gameplay has not been tested yet.
+Work in progress: the game compiles, boots and renders the main menu correctly. Gameplay has not been tested yet.
 
 Contributions that make the PC version run better, such as a native renderer, are welcome and appreciated.
 
@@ -62,13 +62,18 @@ rexglue-sdk patches (`patches/`, on top of upstream `bd833a2`):
 
 | Patch | What was wrong | Effect in game | Source |
 |---|---|---|---|
-| `0001` | Occlusion queries were answered with real host queries or a constant fake sample count; Unreal Engine 3 in Dishonored then culls meshes that are visible | Main menu without the boat, piers, buoy, reeds and water | Xenia Canary `b447699a5` |
+| `0001` | On GPUs without `VK_EXT_shader_stencil_export` (NVIDIA), stencil copies between render targets never discarded pixels, so stencil saturated at 255 | `0001`–`0003` together removed white noise and outlines on object edges in the main menu (not tested one by one) | Xenia Canary `24f90c0ef` |
+| `0002` | Texture `exp_adjust` was read from the wrong fetch constant word | See `0001` (in Singularity: white patches flashing over textures) | Upstream PR #490 |
+| `0003` | Depth written by pixel shaders was not remapped for float24 depth buffers; UE3 restores scene depth this way | See `0001` (in Singularity: missing water, explosions, title screen vortex) | Xenia Canary `b15fcc73e` |
+| `0004` | The achievement popup existed for the whole session, so the window repainted at the monitor rate | FPS counters showed the monitor rate instead of the game's | — |
+| `0005` | Occlusion queries were answered with real host queries or a constant fake sample count; Unreal Engine 3 in Dishonored then culls meshes that are visible | Main menu without the boat, piers, buoy, reeds and water | Xenia Canary `b447699a5` |
 
 Config (`config/dishonored.toml`):
 
 | Setting | Effect in game |
 |---|---|
-| `occlusion_query_enable = false`, `query_occlusion_sample_lower/upper_threshold = 80/100` | Fake occlusion results cycling 100..80 (patch `0001`), so visible meshes are drawn |
+| `occlusion_query_enable = false`, `query_occlusion_sample_lower/upper_threshold = 80/100` | Fake occlusion results cycling 100..80 (patch `0005`), so visible meshes are drawn |
+| `execute_unclipped_draw_vs_on_cpu = true` (Xenia Canary's default) | Lighting: without it the full-screen lighting passes get a wrong screen extent and objects are drawn dark, unlit |
 | `readback_memexport = false`, `clear_memory_page_state = false` (Xenia Canary's defaults) | The CPU does not wait for the GPU after GPU particle effects |
 | `vulkan_allow_present_mode_immediate/mailbox = false` | Presents with vsync instead of redrawing the same frame hundreds of times per second |
 
