@@ -58,7 +58,7 @@ Requirements: Linux, clang-20, CMake 3.25+, Ninja, a Vulkan GPU.
 
 ### Changes
 
-rexglue-sdk patches (`patches/`, on top of upstream `bd833a2`):
+rexglue-sdk patches (`patches/`, on top of upstream `bd833a2`). Patches `0001`–`0004` come unchanged from [singularity-recomp](https://github.com/panalexeu/singularity-recomp), my Singularity recompilation; `0005` is new for Dishonored:
 
 | Patch | What was wrong | Effect in game | Source |
 |---|---|---|---|
