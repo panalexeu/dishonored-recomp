@@ -66,13 +66,13 @@ rexglue-sdk patches (`patches/`, on top of upstream `bd833a2`). Patches `0001`â€
 | `0002` | Texture `exp_adjust` was read from the wrong fetch constant word | See `0001` (in Singularity: white patches flashing over textures) | Upstream PR #490 |
 | `0003` | Depth written by pixel shaders was not remapped for float24 depth buffers; UE3 restores scene depth this way | See `0001` (in Singularity: missing water, explosions, title screen vortex) | Xenia Canary `b15fcc73e` |
 | `0004` | The achievement popup existed for the whole session, so the window repainted at the monitor rate | FPS counters showed the monitor rate instead of the game's | â€” |
-| `0005` | Occlusion queries were answered with real host queries or a constant fake sample count; Unreal Engine 3 in Dishonored then culls meshes that are visible | Main menu without the boat, piers, buoy, reeds and water | Xenia Canary `b447699a5` |
+| `0005` | ReXGlue answered occlusion queries with a constant fake sample count, or with host queries that treated each pair of `EVENT_WRITE_ZPD` events as begin/end, stalled the CPU on every query and turned themselves off on the first mismatch; Unreal Engine 3 in Dishonored then culls meshes that are visible | Main menu without the boat, piers, buoy, reeds and water. Now real host GPU queries run without stalling (`occlusion_query = "fast"`), so hidden objects are culled again | Port of Xenia Canary's ZPD occlusion queries (`fbd620c22`, `3d233a5b2`), Vulkan host render target path only |
 
 Config (`config/dishonored.toml`):
 
 | Setting | Effect in game |
 |---|---|
-| `occlusion_query_enable = false`, `query_occlusion_sample_lower/upper_threshold = 80/100` | Fake occlusion results cycling 100..80 (patch `0005`), so visible meshes are drawn |
+| `occlusion_query = "fast"` (Xenia Canary's default) | Real occlusion queries (patch `0005`): writes a guess at once and the GPU's answer when it arrives. `"fake"` writes made-up counts cycling 100..80 and never culls anything |
 | `execute_unclipped_draw_vs_on_cpu = true` (Xenia Canary's default) | Lighting: without it the full-screen lighting passes get a wrong screen extent and objects are drawn dark, unlit |
 | `readback_memexport = false`, `clear_memory_page_state = false` (Xenia Canary's defaults) | The CPU does not wait for the GPU after GPU particle effects |
 | `vulkan_allow_present_mode_immediate/mailbox = false` | Presents with vsync instead of redrawing the same frame hundreds of times per second |

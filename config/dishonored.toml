@@ -33,12 +33,10 @@ fullscreen = false
 window_width = 1280
 window_height = 720
 
-# Occlusion queries: answer with fake sample counts that cycle 100..80 (patch 0005, Canary b447699a5)
-# instead of real host queries. Dishonored culls most meshes with real host queries or a constant
-# fake count (main menu: no boat, piers, buoy, reeds).
-occlusion_query_enable = false
-query_occlusion_sample_lower_threshold = 80
-query_occlusion_sample_upper_threshold = 100
+# Occlusion queries (ZPD), ported from Xenia Canary: "fast" asks the host GPU how many pixels of each
+# query passed and writes a guess until the answer arrives; "fake" writes made-up counts cycling
+# 100..80 (occlusion_query_fake_lower/upper_threshold) and never culls anything.
+occlusion_query = "fast"
 
 # Lighting: run the vertex shaders of unclipped draws on the CPU to get their real screen extent
 # (Xenia Canary's default). Without it the host render targets of the full-screen lighting passes
